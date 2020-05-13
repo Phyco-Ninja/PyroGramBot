@@ -81,13 +81,12 @@ def button_markdown_parser(msg: Message) -> (str, List):
     return note_data, buttons
 
 
-async def extract_time(message, time_val):
+def extract_time(time_val):
     if any(time_val.endswith(unit) for unit in ('m', 'h', 'd')):
         unit = time_val[-1]
         time_num = time_val[:-1]  # type: str
         if not time_num.isdigit():
-            await message.reply_text("അസാധുവായ സമയ തുക വ്യക്തമാക്കി.")
-            return ""
+            return None
 
         if unit == 'm':
             bantime = int(time.time() + int(time_num) * 60)
@@ -97,27 +96,18 @@ async def extract_time(message, time_val):
             bantime = int(time.time() + int(time_num) * 24 * 60 * 60)
         else:
             # how even...?
-            return ""
+            return None
         return bantime
     else:
-        await message.reply_text(
-            "അസാധുവായ സമയ തരം വ്യക്തമാക്കി. പ്രതീക്ഷിച്ചതു m, h, or d, കിട്ടിയത്: {}".format(
-                time_val[-1]
-            )
-        )
-        return ""
+        return None
 
 
-def format_welcome_caption(html_string, chat_member):
-    mention_string = "<a href='tg://user?id={}'>{}</a>".format(
-        chat_member.id,
-        chat_member.first_name
-    )
+def format_welcome_caption(html_string, chat_member): 
     return html_string.format(
         dc_id=chat_member.dc_id,
         first_name=chat_member.first_name,
         id=chat_member.id,
         last_name=chat_member.last_name,
-        mention=mention_string,
+        mention=f"{chat_member:mention}",
         username=chat_member.username
     )
